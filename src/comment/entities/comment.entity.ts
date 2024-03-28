@@ -1,6 +1,7 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Post } from './post.entity';
-import { Reply } from './reply.entity';
+import { Like } from './like.entity';
+import { Report } from './report.entity';
 
 @Entity()
 export class Comment {
@@ -16,12 +17,18 @@ export class Comment {
   @ManyToOne(type => Post, post => post.comments)
   post: Post;
 
-  @OneToMany(type => Reply, reply => reply.comment)
-  replies: Reply[];
+  @ManyToOne(type => Comment, { onDelete: 'CASCADE' }) // 자기 자신을 참조하는 관계
+  parentComment: Comment;
 
-  @Column({ default: 0 })
-  likeCount: number;
+  @OneToMany(type => Comment, comment => comment.parentComment, { cascade: true })
+  childComments: Comment[];
 
-  @Column({ default: 0 })
-  reportCount: number;
+  @OneToMany(type => Like, like => like.comment)
+  likes: Like[];
+
+  @OneToMany(type => Report, report => report.comment)
+  reports: Report[];
+
+  @Column()
+  isHidden: boolean;
 }

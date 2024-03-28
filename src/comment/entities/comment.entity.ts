@@ -29,6 +29,6 @@ export class Comment {
   @OneToMany(type => Report, report => report.comment)
   reports: Report[];
 
-  @Column()
+  @Column({ default: false })
   isHidden: boolean;
 }

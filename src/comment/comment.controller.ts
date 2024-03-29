@@ -4,6 +4,7 @@ import { CreateCommentRequestDto } from './dto/request/create-comment-request.dt
 import { CreateReplyRequestDto } from './dto/request/create-reply-request.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateLikeRequestDto } from './dto/request/create-like-request.dto';
+import { CreateReportRequestDto } from './dto/request/create-report-request.dto';
 
 @Controller('comments')
 export class CommentController {
@@ -37,5 +38,11 @@ export class CommentController {
   @HttpCode(HttpStatus.CREATED)
   async createLike(@Param('commentId') commentId: number, @Body() request: CreateLikeRequestDto){
     return this.commentService.likeComment(request, commentId);
+  }
+
+  @Post('/reports/:commentId')
+  @HttpCode(HttpStatus.CREATED)
+  async createReport(@Param('commentId') commentId: number, @Body() request: CreateReportRequestDto){
+    return this.commentService.reportComment(request, commentId);
   }
 }

@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Comment } from './comment.entity';
 
 @Entity()
@@ -7,8 +7,11 @@ export class Report {
   id: number;
 
   @Column()
-  content: string;
+  name: String;
 
-  @OneToMany(type => Comment, comment => comment.reports, { onDelete: 'CASCADE' })
+  @Column()
+  content: String;
+
+  @ManyToOne(type => Comment, comment => comment.reports, { onDelete: 'CASCADE' })
   comment: Comment;
 }

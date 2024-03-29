@@ -12,6 +12,8 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { createPaginationResult, PaginationResult } from '../common/util/pagination.util';
 import { GetCommentsResponseDto } from './dto/response/get-comments-response.dto';
 import { CreateLikeRequestDto } from './dto/request/create-like-request.dto';
+import { CreateReportRequestDto } from './dto/request/create-report-request.dto';
+import { Report } from './entities/report.entity';
 
 @Injectable()
 export class CommentService {
@@ -22,6 +24,8 @@ export class CommentService {
     private postRepository: Repository<Post>,
     @InjectRepository(Like)
     private likeRepository: Repository<Like>,
+    @InjectRepository(Report)
+    private reportRepository: Repository<Report>,
   ) {}
 
   async createComment(dto: CreateCommentRequestDto, postId: number): Promise<CreateCommentResponseDto> {
@@ -92,5 +96,28 @@ export class CommentService {
 
     const like = this.likeRepository.create({ ...dto, comment});
     await this.likeRepository.save(like);
+  }
+
+  async reportComment(dto: CreateReportRequestDto, commentId: number): Promise<void> {
+    const comment = await this.commentRepository.findOne({ where: { id: commentId }, relations: ['reports'] });
+    if (!comment) {
+      throw new Error('댓글을 찾을 수 없습니다.');
+    }
+    const existingReport = await this.reportRepository.findOne({
+      where: {
+        comment: { id: commentId },
+        name: dto.name,
+      },
+    });
+    if (existingReport) {
+      throw new Error("이미 신고한 댓글입니다.");
+    }
+    if (comment.reports && comment.reports.length >= 10) {
+      comment.isHidden = true;
+      await this.commentRepository.save(comment);
+      throw new Error("누적된 신고로 인해 숨겨진 댓글입니다.");
+    }
+    const report = this.reportRepository.create({ ...dto, comment });
+    await this.reportRepository.save(report);
   }
 }

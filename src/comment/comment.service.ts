@@ -66,4 +66,8 @@ export class CommentService {
 
     return createPaginationResult(data, dto.page, dto.limit, total);
   }
+
+  async deleteComment(commentId: number): Promise<void> {
+    await this.commentRepository.delete({ id: commentId });
+  }
 }

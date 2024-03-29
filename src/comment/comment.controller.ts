@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentRequestDto } from './dto/request/create-comment-request.dto';
 import { CreateReplyRequestDto } from './dto/request/create-reply-request.dto';
@@ -24,5 +24,11 @@ export class CommentController {
   @HttpCode(HttpStatus.OK)
   async getComments(@Param('postId') postId: number, @Query() request: PaginationDto){
     return this.commentService.getComments(request, postId);
+  }
+
+  @Delete('/:commentId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteComment(@Param('commentId') commentId: number){
+    return this.commentService.deleteComment(commentId);
   }
 }

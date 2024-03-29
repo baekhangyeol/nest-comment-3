@@ -9,6 +9,6 @@ export class Report {
   @Column()
   content: string;
 
-  @OneToMany(type => Comment, comment => comment.reports)
+  @OneToMany(type => Comment, comment => comment.reports, { onDelete: 'CASCADE' })
   comment: Comment;
 }

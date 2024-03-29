@@ -6,6 +6,6 @@ export class Like {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(type => Comment, comment => comment.likes)
+  @ManyToOne(type => Comment, comment => comment.likes, { onDelete: 'CASCADE' })
   comment: Comment;
 }

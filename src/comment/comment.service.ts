@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Comment } from './entities/comment.entity';
+import { Like } from './entities/like.entity';
 import { Repository } from 'typeorm';
 import { CreateCommentResponseDto } from './dto/response/create-comment-repsonse.dto';
 import { CreateCommentRequestDto } from './dto/request/create-comment-request.dto';
@@ -10,6 +11,7 @@ import { CreateReplyResponseDto } from './dto/response/create-reply-response.dto
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { createPaginationResult, PaginationResult } from '../common/util/pagination.util';
 import { GetCommentsResponseDto } from './dto/response/get-comments-response.dto';
+import { CreateLikeRequestDto } from './dto/request/create-like-request.dto';
 
 @Injectable()
 export class CommentService {
@@ -18,6 +20,8 @@ export class CommentService {
     private commentRepository: Repository<Comment>,
     @InjectRepository(Post)
     private postRepository: Repository<Post>,
+    @InjectRepository(Like)
+    private likeRepository: Repository<Like>,
   ) {}
 
   async createComment(dto: CreateCommentRequestDto, postId: number): Promise<CreateCommentResponseDto> {
@@ -69,5 +73,24 @@ export class CommentService {
 
   async deleteComment(commentId: number): Promise<void> {
     await this.commentRepository.delete({ id: commentId });
+  }
+
+  async likeComment(dto: CreateLikeRequestDto, commentId: number): Promise<void> {
+    const comment = await this.commentRepository.findOne({ where: { id: commentId } });
+    if (!comment) {
+      throw new Error('댓글을 찾을 수 없습니다.');
+    }
+    const existingLike = await this.likeRepository.findOne({
+      where: {
+        comment: { id: commentId },
+        name: dto.name,
+      },
+    });
+    if (existingLike) {
+      throw new Error("이미 좋아요를 누른 댓글입니다.");
+    }
+
+    const like = this.likeRepository.create({ ...dto, comment});
+    await this.likeRepository.save(like);
   }
 }

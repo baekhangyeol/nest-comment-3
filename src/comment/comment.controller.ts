@@ -3,6 +3,7 @@ import { CommentService } from './comment.service';
 import { CreateCommentRequestDto } from './dto/request/create-comment-request.dto';
 import { CreateReplyRequestDto } from './dto/request/create-reply-request.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { CreateLikeRequestDto } from './dto/request/create-like-request.dto';
 
 @Controller('comments')
 export class CommentController {
@@ -30,5 +31,11 @@ export class CommentController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteComment(@Param('commentId') commentId: number){
     return this.commentService.deleteComment(commentId);
+  }
+
+  @Post('/likes/:commentId')
+  @HttpCode(HttpStatus.CREATED)
+  async createLike(@Param('commentId') commentId: number, @Body() request: CreateLikeRequestDto){
+    return this.commentService.likeComment(request, commentId);
   }
 }
